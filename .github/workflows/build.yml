@@ -4,36 +4,20 @@ on:
   push:
     branches:
       - main
-  pull_request:
-    branches:
-      - main
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    container: kivy/buildozer:latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-      - name: Setup Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.11'
+      - name: Accept SDK licenses
+        run: yes | sdkmanager --licenses
 
-      - name: Install dependencies
-        run: |
-          sudo apt update
-          sudo apt install -y openjdk-11-jdk unzip wget zip
-          pip install --upgrade pip
-          pip install cython kivy buildozer
-
-      - name: Accept Android SDK licenses and install build-tools
-        run: |
-          yes | buildozer android sdk --install
-          yes | buildozer android update
+      - name: Install Python dependencies
+        run: pip install cython kivy requests
 
       - name: Build APK
-        run: |
-          cd ${{ github.workspace }}
-          buildozer android debug
+        run: buildozer android debug
