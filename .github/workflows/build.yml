@@ -36,8 +36,6 @@ jobs:
           mv $ANDROID_HOME/cmdline-tools/cmdline-tools/* $ANDROID_HOME/cmdline-tools/latest/
 
           echo "ANDROID_HOME=$ANDROID_HOME" >> $GITHUB_ENV
-          
-          # Tüm PATH yollarını tek bir satırda birleştirme
           echo "PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/build-tools/33.0.2:$PATH" >> $GITHUB_ENV
 
           yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
@@ -52,3 +50,4 @@ jobs:
         with:
           name: apk
           path: bin/*.apk
+          
