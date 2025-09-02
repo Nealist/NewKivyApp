@@ -1,4 +1,4 @@
-name: Build Kivy APK
+name: Build APK
 
 on:
   push:
@@ -12,35 +12,29 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    env:
-      ANDROID_HOME: ${{ github.workspace }}/.buildozer/android/platform/android-sdk
-      PATH: ${{ github.workspace }}/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin:$PATH
-
     steps:
+      # 1. Repository'i çek
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Install dependencies
+      # 2. Temel bağımlılıkları yükle
+      - name: Install system dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y python3-pip python3-dev openjdk-17-jdk zip unzip tar zlib1g-dev \
-            libncurses5 libncurses5-dev libffi-dev libssl-dev git wget curl
-
+          libncurses5 libncurses5-dev libffi-dev libssl-dev git wget curl
           pip3 install --upgrade pip
           pip3 install buildozer cython kivy
 
-      - name: Setup Android SDK
-        run: |
-          mkdir -p $ANDROID_HOME
-          cd $ANDROID_HOME
-          wget https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O cmdline-tools.zip
-          unzip cmdline-tools.zip
-          mkdir -p cmdline-tools/latest
-          mv cmdline-tools/* cmdline-tools/latest/
-          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
-          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.2"
-
+      # 3. Buildozer ile APK inşasını başlat
       - name: Build APK
         run: |
           cd $GITHUB_WORKSPACE
           buildozer android debug
+
+      # 4. Üretilen APK'yı artifact olarak sakla
+      - name: Upload APK
+        uses: actions/upload-artifact@v3
+        with:
+          name: app-debug-apk
+          path: bin/*.apk
