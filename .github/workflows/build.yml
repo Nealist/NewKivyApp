@@ -29,5 +29,5 @@ jobs:
 
       - name: Build APK
         run: |
-          cd /github/workspace
+          cd ${{ github.workspace }}
           buildozer android debug
