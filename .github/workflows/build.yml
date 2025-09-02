@@ -21,11 +21,17 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install Kivy, Buildozer and Cython
+      - name: Install dependencies
         run: |
+          sudo apt update
+          sudo apt install -y openjdk-11-jdk unzip wget zip
           pip install --upgrade pip
-          pip install cython
-          pip install kivy buildozer
+          pip install cython kivy buildozer
+
+      - name: Accept Android SDK licenses and install build-tools
+        run: |
+          yes | buildozer android sdk --install
+          yes | buildozer android update
 
       - name: Build APK
         run: |
