@@ -4,20 +4,43 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    container: kivy/buildozer:latest
+
+    env:
+      ANDROID_HOME: ${{ github.workspace }}/.buildozer/android/platform/android-sdk
+      PATH: ${{ github.workspace }}/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin:$PATH
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-      - name: Accept SDK licenses
-        run: yes | sdkmanager --licenses
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3-pip python3-dev openjdk-17-jdk zip unzip zlib1g-dev \
+            libncurses5 libncurses5-dev libffi-dev libssl-dev git wget curl
 
-      - name: Install Python dependencies
-        run: pip install cython kivy requests
+          pip3 install --upgrade pip
+          pip3 install buildozer cython kivy
+
+      - name: Setup Android SDK
+        run: |
+          mkdir -p $ANDROID_HOME
+          cd $ANDROID_HOME
+          wget https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O cmdline-tools.zip
+          unzip cmdline-tools.zip
+          mkdir -p cmdline-tools/latest
+          mv cmdline-tools/* cmdline-tools/latest/
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.2"
 
       - name: Build APK
-        run: buildozer android debug
+        run: |
+          cd $GITHUB_WORKSPACE
+          buildozer android debug
