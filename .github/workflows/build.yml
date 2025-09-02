@@ -1,3 +1,4 @@
+
 name: Build Kivy APK
 
 on:
@@ -14,7 +15,7 @@ jobs:
 
     env:
       ANDROID_HOME: ${{ github.workspace }}/.buildozer/android/platform/android-sdk
-      PATH: ${{ github.workspace }}/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin:$PATH:$PATH
+      PATH: $PATH:${{ github.workspace }}/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin
 
     steps:
       - name: Checkout repository
@@ -29,6 +30,9 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y openjdk-17-jdk unzip tar wget curl git build-essential
+
+      - name: Verify tar command
+        run: which tar
 
       - name: Install Python dependencies
         run: |
